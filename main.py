@@ -4,7 +4,8 @@
 import npyscreen, curses
 import threading
 
-from forms import motorForm, ValvulasForm, SensorForm, ConfMotor, ConfSensor
+from forms import motorForm, ValvulasForm, SensorForm, ConfMotor, \
+                  ConfRecipiente, ConfCloro
 from constants import GIO, Mconfig, MOTOR_MOVES, DISOLUCION_CLORO
 
 
@@ -34,7 +35,8 @@ class MainForm(npyscreen.FormWithMenus):
         self.m2 = self.add_menu(name="Configuraciones", shortcut="2",)
         self.m2.addItemsFromList([
             ("Motor",   self.conf_motor),
-            ("Sensor",   self.conf_sensor),
+            ("Recipiente",   self.conf_recipiente),
+            ("Cloro",   self.conf_cloro),
         ])
         
     
@@ -73,7 +75,7 @@ class MainForm(npyscreen.FormWithMenus):
         self.conf.S1 = F.s1.value[0]
         self.conf.S2 = F.s2.value[0]
         self.conf.S3 = F.s3.value[0]
-
+        self.conf.S4 = F.s4.value[0]
 
     def conf_motor(self):
         F = ConfMotor(self.conf, name='Configuraciones del motor')
@@ -87,16 +89,39 @@ class MainForm(npyscreen.FormWithMenus):
         except:
             self.conf.TIEMPO_ROTACION = tr
 
-    def conf_sensor(self):
-        F =  ConfSensor(self.conf, name='Configuraciones del sensor')
+        
+    def conf_recipiente(self):
+        F =  ConfRecipiente(self.conf, name='Datos del recipiente')
         F.edit()      
-        self.conf.DISOLUCION_CLORO = F.dis_cloro.value[0]
-
+        v = self.conf.VOLUMEN_MAXIMO
         ll = self.conf.LLENADO
+
+        try:
+            self.conf.VOLUMEN_MAXIMO = int(F.volumen.value)
+        except:
+            self.conf.VOLUMEN_MAXIMO = v
+
         try:
             self.conf.LLENADO = int(F.llenado.value)
         except:
             self.conf.LLENADO = ll
+
+    def conf_cloro(self):
+        F = ConfCloro(self.conf)
+        F.edit()  
+        self.conf.DISOLUCION_CLORO = F.dis_cloro.value[0]
+
+        self.conf.CONSTANTE_DE_CLORACION = float(F.constante_coloracion.value)
+        self.conf.TIEMPO_SALIDA_CLORO = int(F.tiempo_salida.value)
+
+        try:
+            self.conf.CONSTANTE_DE_CLORACION = float(F.constante_coloracion.value)
+        except:
+            pass
+        try:
+            self.conf.TIEMPO_SALIDA_CLORO = int(F.tiempo_salida.value)
+        except:
+            pass
 
     def exit_application(self):
         curses.beep()
@@ -120,7 +145,7 @@ Motor [IN1-4]:  %(IN1)s %(IN2)s %(IN3)s %(IN4)s
 Valvulas [ent,sal,cloro]: %(ventrada)s %(vsalida)s %(vcloro)s                  
                                                                 Tipo: %(tipo_rotacion)s
 Sensor [S1-3]: %(S1)s %(S2)s %(S3)s                                
-                                                                Leyendo: %(lectura)s de %(llenado)d
+                                                                Leyendo: %(lectura)d de %(llenado)d
 Solución de cloro: %(cloro)s
            """%{
         'IN1': GIO[self.conf.IN1],
@@ -133,7 +158,7 @@ Solución de cloro: %(cloro)s
         'S1': GIO[self.conf.S1],
         'S2': GIO[self.conf.S2],
         'S3': GIO[self.conf.S3],
-        'lectura': '100',
+        'lectura': 2,
         'tiempo_rotacion': self.conf.TIEMPO_ROTACION,
         'tipo_rotacion': MOTOR_MOVES[self.conf.TIPO_ROTACION],
         'llenado': self.conf.LLENADO,
