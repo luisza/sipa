@@ -1,4 +1,5 @@
 # sipa
+Sistema potabilizador de agua
 
 ### Instalación
 
@@ -11,7 +12,7 @@ Descarga el programa
     $ git clone https://github.com/luisza/sipa.git 
     $ cd sipa
     
-Puede utilizar pip -r requierement.txt para instalar las dependencias necesarias si todavía no las ha instalado.
+Puede utilizar pip install -r requierement.txt para instalar las dependencias necesarias si todavía no las ha instalado.
 
 ### Ejecución 
 
